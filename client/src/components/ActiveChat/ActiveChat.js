@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: 41,
     marginRight: 41,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column-reverse",
     flexGrow: 1,
     justifyContent: "space-between"
   }
@@ -34,15 +34,15 @@ const ActiveChat = (props) => {
             online={conversation.otherUser.online || false}
           />
           <Box className={classes.chatContainer}>
-            <Messages
-              messages={conversation.messages}
-              otherUser={conversation.otherUser}
-              userId={user.id}
-            />
             <Input
               otherUser={conversation.otherUser}
               conversationId={conversation.id}
               user={user}
+            />
+            <Messages
+              messages={conversation.messages}
+              otherUser={conversation.otherUser}
+              userId={user.id}
             />
           </Box>
         </>
