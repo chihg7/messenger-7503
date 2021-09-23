@@ -9,7 +9,7 @@ import {
   FormControl,
   TextField,
 } from "@material-ui/core";
-import { login } from "./store/utils/thunkCreators";
+import { login } from "./store/thunkCreators";
 
 const Login = (props) => {
   const history = useHistory();
@@ -28,7 +28,7 @@ const Login = (props) => {
   }
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Box>
         <Grid container item>
           <Typography>Need to register?</Typography>

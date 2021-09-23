@@ -1,12 +1,10 @@
 import axios from "axios";
-import socket from "../../socket";
+import socket from "../socket";
 import {
-  gotConversations,
-  addConversation,
-  setNewMessage,
-  setSearchedUsers,
-} from "../conversations";
-import { gotUser, setFetchingStatus } from "../user";
+  gotConversations, addConversation, setNewMessage,
+  setSearchedUsers, markMessagesRead
+} from "./conversations";
+import { gotUser, setFetchingStatus } from "./user";
 
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
@@ -40,7 +38,9 @@ export const register = (credentials) => async (dispatch) => {
     socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
-    dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
+    dispatch(gotUser({ 
+      error: error.response.data.error || "Server Error" 
+    }));
   }
 };
 
@@ -52,7 +52,9 @@ export const login = (credentials) => async (dispatch) => {
     socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
-    dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
+    dispatch(gotUser({ 
+      error: error.response.data.error || "Server Error"
+    }));
   }
 };
 
@@ -112,6 +114,17 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
     dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const setMessagesStatusToRead = (conversationId) => async (dispatch) => {
+  try {
+    const { data } = await axios.put(`/api/conversations/${conversationId}`);
+
+    if (data.updatedMessages.length > 0)
+      dispatch(markMessagesRead(conversationId, data.updatedMessages));
   } catch (error) {
     console.error(error);
   }

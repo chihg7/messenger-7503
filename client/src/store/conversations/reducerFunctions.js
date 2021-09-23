@@ -80,3 +80,23 @@ export const addNewConvoToStore = (state, recipientId, message) => {
     }
   });
 };
+
+export const updateMessagesToRead = 
+  (state, conversationId, updatedMessages) =>
+{
+  // The initial design was to update the read status of each 
+  // updated message according to [updatedMessages], but resorted to 
+  // just setting all unread messages to 'read' due to cost concern.
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const newConvo = { ...convo };
+      newConvo.messages.forEach((message) => {
+        if (message.readAt === null)
+          message.readAt = "read";
+      });
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+}

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
 const { Op } = require("sequelize");
+const db = require("../../db");
 const onlineUsers = require("../../onlineUsers");
 
 // get all conversations for a user, include latest message text for preview, and all messages
@@ -69,10 +70,46 @@ router.get("/", async (req, res, next) => {
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;
+      convoJSON.messages = convoJSON.messages.reverse(); 
       conversations[i] = convoJSON;
     }
 
     res.json(conversations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Set all messages unread by the user to read
+router.put("/:conversationId", async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+
+    const updatedMessages = [];
+
+    const unReadMessages = await Message.findAll({
+      where: {
+        conversationId: conversationId,
+        readAt: null,
+        senderId: { 
+          [Op.not]: userId
+        },
+      }
+    });
+
+    for (let i = 0; i < unReadMessages.length; i++) {
+      const message = unReadMessages[i];
+      message.readAt = Date.now();
+      await message.save();
+
+      updatedMessages.push({ id: message.id, readAt: message.readAt });
+    }
+    res.json({updatedMessages});
+
   } catch (error) {
     next(error);
   }

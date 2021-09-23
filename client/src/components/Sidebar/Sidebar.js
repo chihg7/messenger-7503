@@ -6,9 +6,20 @@ import { Search, Chat, CurrentUser } from "./index.js";
 
 const useStyles = makeStyles(() => ({
   root: {
-    paddingLeft: 21,
-    paddingRight: 21,
-    flexGrow: 1
+    display: "flex",
+    flexDirection: "column",
+    width:"100%", height: "100%",
+    padding: 10
+  },
+  chatsWrapper: {
+    position: "relative",
+    width:"100%", height: "100%"
+  },
+  chatsContainer: {
+    position: "absolute",
+    top:0, bottom: 50,
+    width:"100%",
+    overflowY: "scroll",
   },
   title: {
     fontSize: 20,
@@ -29,11 +40,17 @@ const Sidebar = (props) => {
       <CurrentUser />
       <Typography className={classes.title}>Chats</Typography>
       <Search handleChange={handleChange} />
-      {conversations
-        .filter((conversation) => conversation.otherUser.username.includes(searchTerm))
-        .map((conversation) => {
-          return <Chat conversation={conversation} key={conversation.otherUser.username} />;
-        })}
+      <Box className={classes.chatsWrapper}>
+        <Box className={[classes.chatsContainer, "styled-scrollbar"]}>
+          {conversations
+            .filter((conversation) => conversation.otherUser.username.includes(searchTerm))
+            .map((conversation) => { 
+              return <Chat conversation={conversation}
+                  key={conversation.otherUser.username} />
+            })
+          }
+        </Box>
+      </Box>
     </Box>
   );
 };
@@ -44,4 +61,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(Sidebar);
+export default connect(mapStateToProps, null)(Sidebar);
