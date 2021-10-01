@@ -11,6 +11,5 @@ const db = new Sequelize(
         dialect: process.env.DB_DIALECT,
         port: 5432
     });
-// DATABASE_URL = "postgres://postgres:postgres1@localhost:5432/messenger"
 
 module.exports = db;

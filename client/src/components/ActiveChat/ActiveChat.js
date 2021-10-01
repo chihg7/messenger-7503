@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box } from "@material-ui/core";
 import { Input, Header, Messages } from "./index";
 import { connect } from "react-redux";
-import { setMessagesStatusToRead } from "../../store/thunkCreators";
+import { updateMessagesReadingStatus } from "../../store/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -41,12 +41,13 @@ const useStyles = makeStyles(() => ({
 
 const ActiveChat = (props) => {
   const classes = useStyles();
-  const { user, setMessagesStatusToRead } = props;
+  const { user, updateMessagesReadingStatus } = props;
   const conversation = props.conversation || {};
 
   useEffect(() => {
-      setMessagesStatusToRead(conversation.id);
-  }, [conversation.id, setMessagesStatusToRead]);
+    if(conversation.otherUser)
+      updateMessagesReadingStatus(conversation.id, conversation.otherUser.id);
+  }, [conversation, updateMessagesReadingStatus]);
 
   return (
     <Box className={classes.root}>
@@ -63,6 +64,7 @@ const ActiveChat = (props) => {
               messages={conversation.messages}
               otherUser={conversation.otherUser}
               userId={user.id}
+              lastReadMessageId={conversation.lastReadMessageId}
             />
           </Box>
           <Box className={classes.inputContainer}>
@@ -88,8 +90,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setMessagesStatusToRead: (conversationId) => {
-      dispatch(setMessagesStatusToRead(conversationId));
+    updateMessagesReadingStatus: (conversationId, recipientId) => {
+      dispatch(updateMessagesReadingStatus(conversationId, recipientId));
     }
   };
 };

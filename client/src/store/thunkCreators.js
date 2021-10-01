@@ -88,8 +88,8 @@ const saveMessage = async (body) => {
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
-    recipientId: body.recipientId,
     sender: data.sender,
+    recipientId: data.recipientId
   });
 };
 
@@ -98,9 +98,11 @@ const sendMessage = (data, body) => {
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
+    data.recipientId = body.recipientId;
 
+    // Add new conversation on sender side if conversation doesn't exists
     if (!body.conversationId) {
-      dispatch(addConversation(body.recipientId, data.message));
+      dispatch(addConversation(data.recipientId, data.message));
     } else {
       dispatch(setNewMessage(data.message));
     }
@@ -119,12 +121,23 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-export const setMessagesStatusToRead = (conversationId) => async (dispatch) => {
+export const updateMessagesReadingStatus = 
+  (conversationId, recipientId) => async (dispatch) =>
+{
   try {
-    const { data } = await axios.put(`/api/conversations/${conversationId}`);
-
-    if (data.updatedMessages.length > 0)
-      dispatch(markMessagesRead(conversationId, data.updatedMessages));
+    const { data } =
+      await axios.put(`/api/conversations/read/${conversationId}`);
+    const { numOfRowsUpdated, lastReadMessageId, readerId } = data;
+    if (numOfRowsUpdated > 0) {
+      dispatch(markMessagesRead(conversationId));
+      
+      socket.emit("messages-read", {
+        conversationId: conversationId,
+        lastReadMessageId: lastReadMessageId,
+        readerId: readerId,
+        recipientId: recipientId
+      });
+    }
   } catch (error) {
     console.error(error);
   }

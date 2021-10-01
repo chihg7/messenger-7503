@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
 import { Box, Chip, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,16 +22,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatContent = (props) => {
   const classes = useStyles();
-
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
-  // const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
-
-  const unreadMessagesCount = conversation.messages
-    .filter(message => (
-      message.senderId === conversation.otherUser.id 
-      && message.readAt === null)
-    ).length;
+  const { latestMessageText, otherUser, unreadMessagesCount } = conversation;
 
   return (
     <Box className={classes.root}>

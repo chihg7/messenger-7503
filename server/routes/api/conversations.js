@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
-const { Op } = require("sequelize");
+const { Op, QueryTypes } = require("sequelize");
 const db = require("../../db");
 const onlineUsers = require("../../onlineUsers");
 
@@ -68,7 +68,21 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
+      // find the latest message read by the other user
+      console.log("convo ID: " + convoJSON.id);
+      const result = await Message.findOne({
+        where: { 
+          conversationId: convoJSON.id,
+          senderId: userId,
+          readAt: { [Op.not]: null }
+        },
+        order: [[ 'createdAt', 'DESC' ]],
+      });
+
+      const lastReadMessageId = result ? result.dataValues.id : null;
+
       // set properties for notification count and latest message preview
+      convoJSON.lastReadMessageId = lastReadMessageId;
       convoJSON.latestMessageText = convoJSON.messages[0].text;
       convoJSON.messages = convoJSON.messages.reverse(); 
       conversations[i] = convoJSON;
@@ -81,7 +95,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // Set all messages unread by the user to read
-router.put("/:conversationId", async (req, res, next) => {
+router.put("/read/:conversationId", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
@@ -89,26 +103,39 @@ router.put("/:conversationId", async (req, res, next) => {
     const userId = req.user.id;
     const { conversationId } = req.params;
 
-    const updatedMessages = [];
+    const { dataValues: convo } = 
+      await Conversation.findOne({ where: { id: conversationId }});
 
-    const unReadMessages = await Message.findAll({
-      where: {
-        conversationId: conversationId,
-        readAt: null,
-        senderId: { 
-          [Op.not]: userId
-        },
+    if (!(convo.user1Id === userId || convo.user2Id === userId)) {
+      return res.sendStatus(403);
+    }   
+    
+    const updateResult = await db.query(
+      'UPDATE messages SET "readAt" = current_timestamp ' +
+      'WHERE "conversationId" = $conversationId AND "readAt" IS NULL ' +
+      'AND NOT "senderId" = $userId;',
+      {
+        bind: { conversationId: conversationId, userId: userId },
+        type: QueryTypes.UPDATE
       }
+    );
+    
+    const {dataValues: lastReadMessage} = await Message.findOne({
+      where: { 
+        conversationId: conversationId,
+        [Op.not]: {
+          readAt: null,
+          senderId: userId
+        }
+      },
+      order: [[ 'createdAt', 'DESC' ]],
     });
 
-    for (let i = 0; i < unReadMessages.length; i++) {
-      const message = unReadMessages[i];
-      message.readAt = Date.now();
-      await message.save();
-
-      updatedMessages.push({ id: message.id, readAt: message.readAt });
-    }
-    res.json({updatedMessages});
+    res.json({
+      numOfRowsUpdated: updateResult[1],
+      lastReadMessageId: lastReadMessage.id,
+      readerId: userId
+    });
 
   } catch (error) {
     next(error);
