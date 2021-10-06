@@ -13,7 +13,6 @@ export const addMessageToStore = (state, payload) => {
     elimanates the possible glitch that can be caused when the user happens to be clicking
     away right when the process has decided that the chat is still active.
    */
-
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,

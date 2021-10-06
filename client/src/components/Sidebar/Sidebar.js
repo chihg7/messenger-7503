@@ -1,8 +1,10 @@
-import React from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
 import { connect } from "react-redux";
-import { Search, Chat, CurrentUser } from "./index.js";
+import { Chat, CurrentUser, Search } from "./index.js";
+import { theme } from "../../themes/theme";
+
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,9 +19,10 @@ const useStyles = makeStyles(() => ({
   },
   chatsContainer: {
     position: "absolute",
-    top:0, bottom: 50,
+    top: theme.spacing(0),
+    bottom: theme.spacing(5),
     width:"100%",
-    overflowY: "scroll",
+    overflowY: "scroll"
   },
   title: {
     fontSize: 20,
