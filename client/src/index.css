@@ -1,9 +1,32 @@
+* { box-sizing: border-box !important; }
+
+html { height: 100vh; }
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  height: 100%;
+  overflow: visible;
+}
+
+/* Styled Scrollbar */
+.styled-scrollbar::-webkit-scrollbar {
+  width: 7px;
+}
+.styled-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.4);
+  border-radius: 10rem;
+  border: 1px solid #fff;
+}
+.styled-scrollbar::-webkit-scrollbar-track-piece:start {
+  background: transparent;
+}
+.styled-scrollbar::-webkit-scrollbar-track-piece:end {
+  background: transparent;
 }
 
 code {

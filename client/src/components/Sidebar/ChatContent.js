@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Typography } from "@material-ui/core";
+import { Box, Chip, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,9 +22,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatContent = (props) => {
   const classes = useStyles();
-
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
+  const { latestMessageText, otherUser, unreadMessagesCount } = conversation;
 
   return (
     <Box className={classes.root}>
@@ -36,6 +35,12 @@ const ChatContent = (props) => {
           {latestMessageText}
         </Typography>
       </Box>
+      { unreadMessagesCount > 0 && (
+        <Chip 
+            color="primary" size="small"
+            label= { unreadMessagesCount }
+        />
+      )}
     </Box>
   );
 };

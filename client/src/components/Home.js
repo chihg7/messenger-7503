@@ -5,12 +5,19 @@ import { Grid, CssBaseline, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { SidebarContainer } from "./Sidebar";
 import { ActiveChat } from "./ActiveChat";
-import { logout, fetchConversations } from "../store/utils/thunkCreators";
+import { logout, fetchConversations } from "../store/thunkCreators";
 import { clearOnLogout } from "../store/index";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100vh"
+    width: "100%", height: "100%",
+    direction: "row", wrap: "nowrap",
+    justifyContent: "flex-start",
+    position: "fixed"
+  },
+  panel: {
+    position: "relative",
+    height: "100%"
   }
 }));
 
@@ -42,13 +49,17 @@ const Home = (props) => {
   return (
     <>
       {/* logout button will eventually be in a dropdown next to username */}
-      <Button className={classes.logout} onClick={handleLogout}>
+      <Button className={classes.logout} onClick={handleLogout} >
         Logout
       </Button>
-      <Grid container component="main" className={classes.root}>
+      <Grid container component="main" className={classes.root} spacing={3}>
         <CssBaseline />
-        <SidebarContainer />
-        <ActiveChat />
+        <Grid item xs={12} md={4} className={classes.panel}>
+          <SidebarContainer />
+        </Grid>
+        <Grid item xs={12} md={8} className={classes.panel}>
+          <ActiveChat />
+        </Grid>
       </Grid>
     </>
   );
