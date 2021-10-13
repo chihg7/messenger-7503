@@ -69,7 +69,6 @@ router.get("/", async (req, res, next) => {
       }
 
       // find the latest message read by the other user
-      console.log("convo ID: " + convoJSON.id);
       const result = await Message.findOne({
         where: { 
           conversationId: convoJSON.id,
